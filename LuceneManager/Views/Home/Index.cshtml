@@ -1,0 +1,43 @@
+﻿@model System.Collections.Generic.List<string>
+
+@{
+    ViewBag.Title = "Results"; 
+}
+
+<h2>NrtManager</h2>
+<h3>Search</h3>
+@using (Html.BeginForm("Index", "Home", FormMethod.Get))
+{
+    <label>
+        Query
+        <input type="text" name="q" value="@Request["q"]" />
+    </label>
+}
+
+<h3>Results</h3>
+@if (Model.Count == 0)
+{
+    <div>No results</div>
+}
+else
+{
+    <ol>
+        @foreach (var result in Model)
+        {
+            <li>@result</li>
+        }
+    </ol>
+}
+
+<h3>Add item</h3>
+<p>If "Wait" is unchecked, it will take a little while before the text appears in the list above. Otherwise it's there instantly.</p>
+@using (Html.BeginForm("Save", "Home", FormMethod.Get))
+{
+    <label>Text
+        <input type="text" name="text" /></label>
+    <label>
+        <input type="checkbox" name="wait" value="True" />
+        Wait</label>
+    
+    <button type="submit">Add</button>
+}
