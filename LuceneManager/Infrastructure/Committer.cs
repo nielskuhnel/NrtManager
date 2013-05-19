@@ -13,7 +13,7 @@ namespace LuceneManager.Infrastructure
         private readonly IndexWriter _writer;
         private readonly TimeSpan _commitInterval;
         private readonly TimeSpan _optimizeInterval;
-        private ManualResetEventSlim _waitHandle = new ManualResetEventSlim(false);
+        private readonly AutoResetEvent _waitHandle = new AutoResetEvent(false);
         private bool _finish;
 
         public Committer(IndexWriter writer, TimeSpan commitInterval, TimeSpan optimizeInterval)
@@ -29,9 +29,7 @@ namespace LuceneManager.Infrastructure
             var lastOptimize = 0L;
             sw.Start();
             while (!_finish)
-            {
-                _waitHandle.Reset();
-
+            {                
                 _writer.Commit();
 
                 if (sw.ElapsedTicks - lastOptimize > _optimizeInterval.Ticks)
@@ -40,7 +38,7 @@ namespace LuceneManager.Infrastructure
                     lastOptimize = sw.ElapsedTicks;
                 }
 
-                _waitHandle.Wait(_commitInterval);
+                _waitHandle.WaitOne(_commitInterval);
             }
             sw.Stop();
         }

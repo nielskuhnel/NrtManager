@@ -13,7 +13,7 @@ namespace Lucene.Net.Contrib.Management
         private long _waitingGen;
         private bool _waitingNeedsDeletes;
 
-        private ManualResetEventSlim _waitHandle = new ManualResetEventSlim(false);
+        private readonly AutoResetEvent _waitHandle = new AutoResetEvent(false);
 
         public NrtManagerReopener(NrtManager manager, TimeSpan targetMaxStale, TimeSpan targetMinStale)
         {
@@ -47,8 +47,7 @@ namespace Lucene.Net.Contrib.Management
             {
 
                 var hasWaiting = false;
-
-                _waitHandle.Reset();
+                
                 // TODO: try to guestimate how long reopen might
                 // take based on past data?
 
@@ -67,7 +66,7 @@ namespace Lucene.Net.Contrib.Management
                         //System.out.println("reopen: sleep " + (sleepNS/1000000.0) + " ms (hasWaiting=" + hasWaiting + ")");
                         try
                         {
-                            _waitHandle.Wait(new TimeSpan(sleep));
+                            _waitHandle.WaitOne(new TimeSpan(sleep));
                         }
                         catch (ThreadInterruptedException)
                         {
@@ -81,7 +80,7 @@ namespace Lucene.Net.Contrib.Management
                     {
                         break;
                     }
-                }
+                }                
 
                 if (_finish)
                 {

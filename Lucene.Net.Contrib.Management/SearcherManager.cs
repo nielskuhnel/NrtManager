@@ -21,7 +21,7 @@ namespace Lucene.Net.Contrib.Management
             _currentSearcher = new IndexSearcher(writer.GetReader());
             if (_warmer != null)
             {
-                writer.MergedSegmentWarmer = new WarmerWrapper(_warmer);
+                writer.MergedSegmentWarmer = new WarmerWrapper(_warmer);                
             }
         }
 
@@ -93,7 +93,7 @@ namespace Lucene.Net.Contrib.Management
         }
 
         private void ReleaseSearcher(IndexSearcher searcher)
-        {
+        {            
             searcher.IndexReader.DecRef();
         }
 
@@ -110,7 +110,7 @@ namespace Lucene.Net.Contrib.Management
             EnsureOpen();
             var oldSearcher = _currentSearcher;
             _currentSearcher = newSearcher;
-            ReleaseSearcher(oldSearcher);
+            ReleaseSearcher(oldSearcher);            
         }
 
         public void Dispose()
