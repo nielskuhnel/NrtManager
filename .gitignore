@@ -154,3 +154,4 @@ $RECYCLE.BIN/
 .DS_Store
 packages*
 *.sln.ide*
+release.cmd
