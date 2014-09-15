@@ -152,3 +152,6 @@ $RECYCLE.BIN/
 
 # Mac desktop service store files
 .DS_Store
+packages*
+*.sln.ide*
+release.cmd
