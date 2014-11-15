@@ -30,30 +30,37 @@ namespace Lucene.Net.Contrib.Management
             EnsureOpen();
             if (Monitor.TryEnter(_reopenLock))
             {
-                var currentReader = _currentSearcher.IndexReader;
-                var newReader = _currentSearcher.IndexReader.Reopen();
-                if (newReader != currentReader)
+                try
                 {
-                    var newSearcher = new IndexSearcher(newReader);
-                    var success = false;
-                    try
+                    var currentReader = _currentSearcher.IndexReader;
+                    var newReader = _currentSearcher.IndexReader.Reopen();
+                    if (newReader != currentReader)
                     {
-                        if (_warmer != null)
+                        var newSearcher = new IndexSearcher(newReader);
+                        var success = false;
+                        try
                         {
-                            _warmer.Warm(newSearcher);
+                            if (_warmer != null)
+                            {
+                                _warmer.Warm(newSearcher);
+                            }
+                            SwapSearcher(newSearcher);
+                            success = true;
                         }
-                        SwapSearcher(newSearcher);
-                        success = true;
-                    }
-                    finally
-                    {
-                        if (!success)
+                        finally
                         {
-                            ReleaseSearcher(newSearcher);
+                            if (!success)
+                            {
+                                ReleaseSearcher(newSearcher);
+                            }
                         }
                     }
+                    return true;
                 }
-                return true;
+                finally
+                {
+                    Monitor.Exit(_reopenLock);
+                }
             }
 
             return false;
