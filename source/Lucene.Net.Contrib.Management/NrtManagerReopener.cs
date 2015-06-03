@@ -40,12 +40,11 @@ namespace Lucene.Net.Contrib.Management
         public void Start()
         {
             var sw = new Stopwatch();
-            var lastReopen = 0L;
+            var lastReopen = TimeSpan.Zero;
             sw.Start();
 
             while (true)
             {
-
                 var hasWaiting = false;
                 
                 // TODO: try to guestimate how long reopen might
@@ -57,16 +56,16 @@ namespace Lucene.Net.Contrib.Management
 
                     // True if we have someone waiting for reopen'd searcher:
                     hasWaiting = _waitingGen > _manager.GetCurrentSearchingGen(_waitingNeedsDeletes);
-                    var nextReopenStart = lastReopen + (hasWaiting ? _targetMinStale.Ticks : _targetMaxStale.Ticks);
+                    var nextReopenStart = lastReopen + (hasWaiting ? _targetMinStale : _targetMaxStale);
 
-                    var sleep = nextReopenStart - sw.ElapsedTicks;
+                    var sleep = nextReopenStart - sw.Elapsed;
 
-                    if (sleep > 0)
+                    if (sleep > TimeSpan.Zero)
                     {
                         //System.out.println("reopen: sleep " + (sleepNS/1000000.0) + " ms (hasWaiting=" + hasWaiting + ")");
                         try
                         {
-                            _waitHandle.WaitOne(new TimeSpan(sleep));
+                            _waitHandle.WaitOne(sleep);
                         }
                         catch (ThreadInterruptedException)
                         {
@@ -89,7 +88,7 @@ namespace Lucene.Net.Contrib.Management
                 }
                 //System.out.println("reopen: start hasWaiting=" + hasWaiting);
 
-                lastReopen = sw.ElapsedTicks;
+                lastReopen = sw.Elapsed;
                 _manager.MaybeReopen(_waitingNeedsDeletes);
             }
         }

@@ -23,16 +23,16 @@ namespace Lucene.Net.Contrib.Management.Client
         public void Start()
         {
             var sw = new Stopwatch();
-            var lastOptimize = 0L;
+            var lastOptimize = TimeSpan.Zero;
             sw.Start();
             while (!_finish)
             {
                 _writer.Commit();
 
-                if (sw.ElapsedTicks - lastOptimize > _optimizeInterval.Ticks)
+                if (sw.Elapsed - lastOptimize > _optimizeInterval)
                 {
                     _writer.Optimize(2, false);
-                    lastOptimize = sw.ElapsedTicks;
+                    lastOptimize = sw.Elapsed;
                 }
 
                 _waitHandle.WaitOne(_commitInterval);
